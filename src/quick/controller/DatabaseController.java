@@ -1,6 +1,7 @@
 package quick.controller;
 
 import java.sql.*;
+import java.util.Vector;
 
 import javax.swing.JOptionPane;
 
@@ -109,9 +110,6 @@ public class DatabaseController
 	}
     }
     
-    /**
-     * Builds a database at the site that the connectionString leads it to
-     */
     public void createDatabase()
     {
 	resetDatabaseConnection();
@@ -119,7 +117,24 @@ public class DatabaseController
 	{
 	    Statement createDatabaseStatement = databaseConnection.createStatement();
 	    
-	    int result = createDatabaseStatement.executeUpdate("CREATE DATABASE IF NOT EXISTS ryan");
+	    int result = createDatabaseStatement.executeUpdate("CREATE DATABASE IF NOT EXISTS `graveyard`");
+	}
+	catch (SQLException currentException)
+	{
+	    displaySQLErrors(currentException);
+	}
+    }
+    
+    /**
+     * Builds a database at the site that the connectionString leads it to
+     */
+    public void createDatabase(String databaseName)
+    {
+	try
+	{
+	    Statement createDatabaseStatement = databaseConnection.createStatement();
+	    
+	    int result = createDatabaseStatement.executeUpdate("CREATE DATABASE IF NOT EXISTS `"   + databaseName + "`");
 	}
 	catch (SQLException currentException)
 	{
@@ -295,7 +310,63 @@ public class DatabaseController
      */
     public void connectToExternalServer()
     {
-	buildConnectionString("10.228.6.204", "", "ctec", "student");
+	buildConnectionString("10.228.6.204", "graveyard", "ctec", "student");
 	setupConnection();
+	createDatabase("ryan");
+    }
+    
+    /**
+     * Creates a Vector<Person> from the SELECT statement built in the method on the supplied tableName.
+     * Places the contents of the ResultSet in to a Person and then inserts said person into the Vector<Person>.
+     * @param tableName The specified table from the database. In this version it should be 'people'.
+     * @return The list of Person objects from the people table.
+     */
+    public Vector<Person> selectDataFromTable(String tableName)
+    {
+	Vector<Person> personVector = new Vector<Person>();
+	ResultSet seeDeadPeopleResults;
+	String selectQuery = "SELECT person_age, " +
+			"person_name, " +
+			"person_has_children, " +
+			"person_is_married, " +
+			"person_birth_date, " +
+			"person_death_date FROM " + 
+			tableName + ";";
+	
+	try
+	{
+	    PreparedStatement selectStatement = databaseConnection.prepareStatement(selectQuery);
+	    seeDeadPeopleResults = selectStatement.executeQuery();
+	    
+	    while(seeDeadPeopleResults.next())
+	    {
+		Person tempPerson = new Person();
+		
+		int tempAge = seeDeadPeopleResults.getInt(1);
+		String tempName = seeDeadPeopleResults.getString(2);
+		boolean tempkids = seeDeadPeopleResults.getBoolean(3);
+		boolean tempMarried = seeDeadPeopleResults.getBoolean(4);
+		String tempBirth = seeDeadPeopleResults.getString(5);
+		String tempDeath = seeDeadPeopleResults.getString(6);
+		
+		tempPerson.setAge(tempAge);
+		tempPerson.setBirthDate(tempBirth);
+		tempPerson.setDeathDate(tempDeath);
+		tempPerson.setHasChildren(tempkids);
+		tempPerson.setMarried(tempMarried);
+		tempPerson.setName(tempName);
+		
+		personVector.add(tempPerson);
+	    }
+	    
+	    seeDeadPeopleResults.close();
+	    selectStatement.close();
+	}
+	catch(SQLException currentSQLError)
+	{
+	    displaySQLErrors(currentSQLError);
+	}
+	
+	return personVector;
     }
 }

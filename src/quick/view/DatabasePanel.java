@@ -2,6 +2,7 @@ package quick.view;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
@@ -21,13 +22,20 @@ public class DatabasePanel extends JPanel
     private JTextField ageField;
     private JTextField nameField;
     private JTextField deathDateField;
+    private JTextField birthDateField;
     private JButton createDatabaseButton;
     private JButton createPeopleTableButton;
     private JButton insertPersonIntoTableButton;
     private JButton updatePersonButton;
-    private JTextArea testArea;
-    private JScrollPane scroller;
+    private JButton selectButton;
+    private JButton connectButton;
+    private JTextArea resultsArea;
+    private JScrollPane resultsPane;
     
+    /**
+     * This is the constructor for the DatabasePanel.
+     * @param baseController This is the DatabaseController that is handling the heavy lifting.
+     */
     public DatabasePanel(AppController baseController)
     {
 	this.baseController = baseController;
@@ -38,6 +46,11 @@ public class DatabasePanel extends JPanel
 	ageField = new JTextField("age", 5);
 	nameField = new JTextField("person name", 20);
 	deathDateField = new JTextField("death date", 15);
+	resultsArea = new JTextArea(7, 35);
+	resultsPane = new JScrollPane(resultsArea);
+	selectButton  = new JButton("Select Data");
+	connectButton = new JButton("Connect to an external Database");
+	birthDateField = new JTextField("birth date", 15);
 	
 	baseLayout = new SpringLayout();
 	setupPanel();
@@ -45,6 +58,9 @@ public class DatabasePanel extends JPanel
 	setupListeners();
     }
     
+    /**
+     * This method sets up the panel.
+     */
     private void setupPanel()
     {
 	this.setLayout(baseLayout);
@@ -55,26 +71,73 @@ public class DatabasePanel extends JPanel
 	this.add(nameField);
 	this.add(deathDateField);
 	this.add(updatePersonButton);
+	this.add(resultsPane);
+	this.add(selectButton);
+	this.add(connectButton);
+//	this.add(birthDateField);
+	
+	resultsArea.setWrapStyleWord(true);
+	resultsArea.setLineWrap(true);
     }
     
+    /**
+     * This method clears all the fields so it doesn't get confusing.
+     */
+    private void clearFields()
+    {
+	deathDateField.setText("");
+	ageField.setText("");
+	nameField.setText("");
+	resultsArea.setText("");
+    }
+    
+    /**
+     * This method reads a Vector<Person> and returns its values.
+     * @param currentPeople This is the Vector<Person> that is being read.
+     */
+    private void readFromVector(Vector<Person> currentPeople)
+    {
+	clearFields();
+	for(Person currentPerson: currentPeople)
+	{
+	    resultsArea.append(currentPerson.toString() + "\n");
+	}
+    }
+    
+    /**
+     * This method sets up the positions of everything in the panel.
+     */
     private void setupLayout()
     {
-	baseLayout.putConstraint(SpringLayout.NORTH, ageField, 18, SpringLayout.SOUTH, deathDateField);
-	baseLayout.putConstraint(SpringLayout.WEST, ageField, 0, SpringLayout.WEST, createDatabaseButton);
-	baseLayout.putConstraint(SpringLayout.WEST, deathDateField, 0, SpringLayout.WEST, createDatabaseButton);
-	baseLayout.putConstraint(SpringLayout.NORTH, createDatabaseButton, 28, SpringLayout.NORTH, this);
-	baseLayout.putConstraint(SpringLayout.WEST, insertPersonIntoTableButton, 88, SpringLayout.WEST, this);
-	baseLayout.putConstraint(SpringLayout.SOUTH, insertPersonIntoTableButton, -31, SpringLayout.SOUTH, this);
-	baseLayout.putConstraint(SpringLayout.EAST, createDatabaseButton, -303, SpringLayout.EAST, this);
-	baseLayout.putConstraint(SpringLayout.NORTH, createPeopleTableButton, 0, SpringLayout.NORTH, createDatabaseButton);
-	baseLayout.putConstraint(SpringLayout.WEST, createPeopleTableButton, 51, SpringLayout.EAST, createDatabaseButton);
-	baseLayout.putConstraint(SpringLayout.NORTH, deathDateField, 138, SpringLayout.NORTH, this);
-	baseLayout.putConstraint(SpringLayout.WEST, nameField, 0, SpringLayout.WEST, createDatabaseButton);
-	baseLayout.putConstraint(SpringLayout.SOUTH, nameField, -25, SpringLayout.NORTH, deathDateField);
-	baseLayout.putConstraint(SpringLayout.NORTH, updatePersonButton, -1, SpringLayout.NORTH, ageField);
-	baseLayout.putConstraint(SpringLayout.EAST, updatePersonButton, -81, SpringLayout.EAST, this);
+
+	baseLayout.putConstraint(SpringLayout.SOUTH, connectButton, -17, SpringLayout.NORTH, createPeopleTableButton);
+	baseLayout.putConstraint(SpringLayout.EAST, connectButton, 0, SpringLayout.EAST, insertPersonIntoTableButton);
+	baseLayout.putConstraint(SpringLayout.NORTH, selectButton, 27, SpringLayout.SOUTH, updatePersonButton);
+	baseLayout.putConstraint(SpringLayout.SOUTH, createPeopleTableButton, -24, SpringLayout.NORTH, updatePersonButton);
+	baseLayout.putConstraint(SpringLayout.EAST, createDatabaseButton, -68, SpringLayout.EAST, this);
+	baseLayout.putConstraint(SpringLayout.NORTH, updatePersonButton, 2, SpringLayout.NORTH, resultsPane);
+	baseLayout.putConstraint(SpringLayout.EAST, updatePersonButton, 0, SpringLayout.EAST, createDatabaseButton);
+	baseLayout.putConstraint(SpringLayout.EAST, createPeopleTableButton, -41, SpringLayout.EAST, this);
+	baseLayout.putConstraint(SpringLayout.NORTH, createDatabaseButton, 10, SpringLayout.NORTH, this);
+	baseLayout.putConstraint(SpringLayout.WEST, selectButton, 68, SpringLayout.EAST, resultsPane);
+	
+
+	baseLayout.putConstraint(SpringLayout.NORTH, ageField, 20, SpringLayout.SOUTH, deathDateField);
+	
+		baseLayout.putConstraint(SpringLayout.NORTH, resultsPane, 10, SpringLayout.SOUTH, ageField);
+		baseLayout.putConstraint(SpringLayout.WEST, resultsPane, 10, SpringLayout.WEST, this);
+	baseLayout.putConstraint(SpringLayout.NORTH, deathDateField, 20, SpringLayout.SOUTH, nameField);
+	baseLayout.putConstraint(SpringLayout.NORTH, insertPersonIntoTableButton, 6, SpringLayout.SOUTH, resultsPane);
+	baseLayout.putConstraint(SpringLayout.EAST, insertPersonIntoTableButton, -34, SpringLayout.EAST, this);
+	baseLayout.putConstraint(SpringLayout.NORTH, nameField, 29, SpringLayout.NORTH, this);
+	baseLayout.putConstraint(SpringLayout.WEST, ageField, 0, SpringLayout.WEST, nameField);
+	baseLayout.putConstraint(SpringLayout.WEST, deathDateField, 22, SpringLayout.WEST, this);
+	baseLayout.putConstraint(SpringLayout.WEST, nameField, 22, SpringLayout.WEST, this);
     }
     
+    /**
+     * This methods sets up the buttons so that they behave properly.
+     */
     private void setupListeners()
     {
 	createDatabaseButton.addActionListener(new ActionListener()
@@ -91,7 +154,6 @@ public class DatabasePanel extends JPanel
 	    public void actionPerformed(ActionEvent click)
 	    {
 		baseController.getMyDataController().createPeopleTable("graveyardpm");
-//		baseController.getMyDataController().connectToExternalServer();
 	    }
 	});
 	
@@ -109,6 +171,18 @@ public class DatabasePanel extends JPanel
 		
 		baseController.getGraveyardPersons().add(currentPerson);
 		baseController.getMyDataController().insertPersonIntoTable(currentPerson);
+		clearFields();
+		
+	    }
+	});
+	
+	selectButton.addActionListener(new ActionListener()
+	{
+	    public void actionPerformed(ActionEvent click)
+	    {
+
+		Vector<Person> temp = baseController.getMyDataController().selectDataFromTable("people");
+		readFromVector(temp);
 	    }
 	});
 	
@@ -119,8 +193,21 @@ public class DatabasePanel extends JPanel
 		baseController.getMyDataController().updatePersonName(nameField.getText(), deathDateField.getText());
 	    }
 	});
+	
+	connectButton.addActionListener(new ActionListener()
+	{
+	   public void actionPerformed(ActionEvent click)
+	   {
+
+		baseController.getMyDataController().connectToExternalServer();
+	   }
+	});
     }
     
+    /**
+     * This creates a person from the values that it gives to you.
+     * @return This is the person created.
+     */
     private Person createPersonFromValues()
     {
 	Person tempDeadPerson = null;
@@ -137,6 +224,11 @@ public class DatabasePanel extends JPanel
 	return tempDeadPerson;
     }
     
+    /**
+     * This parses the age field to make sure that it is an integer.
+     * @param current This is the current string.
+     * @return This tells whether the string is an integer or not.
+     */
     private boolean checkParseInteger(String current)
     {
 	boolean isParseable = false;
