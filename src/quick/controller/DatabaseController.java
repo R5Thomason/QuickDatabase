@@ -41,6 +41,11 @@ public class DatabaseController
 	this.connectionString = connectionString;
     }
     
+    public String getConnectionString()
+    {
+	return connectionString;
+    }
+    
     /*
      * Checks that the driver for the MySQL is loaded properly. If not it stops working.
      */
@@ -313,6 +318,38 @@ public class DatabaseController
 	buildConnectionString("10.228.6.204", "graveyard", "ctec", "student");
 	setupConnection();
 	createDatabase("ryan");
+    }
+    
+    /**
+     * Creates a Vector<String> from the header information stored in the ResultSetMetaData. Used to create the TableModel information for a JTable.
+     * @param database The database that is being queried.
+     * @param table The table inside the database
+     * @return The Vector<String> that is being put into the JTable.
+     */
+    public Vector<String> getTableHeaders(String database, String table)
+    {
+	Vector<String> tableHeaders = new Vector<String>();
+	String query = "Select * from `" + database + "`.`" + table + "`;";
+	try
+	{
+	    Statement headerStatement = databaseConnection.createStatement();
+	    ResultSet results = headerStatement.executeQuery(query);
+	    ResultSetMetaData resultsData = results.getMetaData();
+	    
+	    for(int column = 1; column<= resultsData.getColumnCount(); column++)
+	    {
+		tableHeaders.add(resultsData.getColumnName(column));
+	    }
+	    
+	    results.close();
+	    headerStatement.close();
+	}
+	catch(SQLException currentSQLError)
+	{
+	    displaySQLErrors(currentSQLError);
+	}
+	
+	return tableHeaders;
     }
     
     /**

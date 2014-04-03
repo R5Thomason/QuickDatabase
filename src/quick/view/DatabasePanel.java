@@ -5,12 +5,15 @@ import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
+import javax.swing.table.TableModel;
 
 import quick.controller.AppController;
 import quick.model.Person;
@@ -31,6 +34,9 @@ public class DatabasePanel extends JPanel
     private JButton connectButton;
     private JTextArea resultsArea;
     private JScrollPane resultsPane;
+    private JTable dataTable;
+    private String currentConnection;
+    private JLabel connectionLabel;
     
     /**
      * This is the constructor for the DatabasePanel.
@@ -47,15 +53,29 @@ public class DatabasePanel extends JPanel
 	nameField = new JTextField("person name", 20);
 	deathDateField = new JTextField("death date", 15);
 	resultsArea = new JTextArea(7, 35);
-	resultsPane = new JScrollPane(resultsArea);
+//	resultsPane = new JScrollPane(resultsArea);
 	selectButton  = new JButton("Select Data");
 	connectButton = new JButton("Connect to an external Database");
 	birthDateField = new JTextField("birth date", 15);
+	currentConnection = "Currently connected to: ";
+	connectionLabel = new JLabel(currentConnection + baseController.getMyDataController().getConnectionString()); 
 	
 	baseLayout = new SpringLayout();
+	
+	setupTable();
 	setupPanel();
 	setupLayout();
 	setupListeners();
+    }
+    
+    /**
+     * 
+     */
+    private void setupTable()
+    {
+	TableModel sampleModel = baseController.createTableModel();
+	dataTable = new JTable(sampleModel);
+	resultsPane = new JScrollPane(dataTable);
     }
     
     /**
